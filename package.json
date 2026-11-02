@@ -1,0 +1,41 @@
+{
+  "name": "browser-control-profiles",
+  "version": "1.0.0",
+  "description": "bcp: drive several Chromium profiles at once with Browser Control, one extension copy and relay port per profile.",
+  "license": "MIT",
+  "author": "James Phillip Sanders",
+  "type": "module",
+  "bin": {
+    "bcp": "bin/bcp.js",
+    "browser-control-profiles": "bin/bcp.js"
+  },
+  "files": [
+    "bin",
+    "src",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test test/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/jpsanders/bcp.git"
+  },
+  "homepage": "https://github.com/jpsanders/bcp#readme",
+  "bugs": {
+    "url": "https://github.com/jpsanders/bcp/issues"
+  },
+  "keywords": [
+    "browser-control",
+    "chromium",
+    "chrome",
+    "profiles",
+    "mcp",
+    "agents",
+    "playwright"
+  ]
+}
