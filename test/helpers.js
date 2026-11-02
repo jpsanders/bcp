@@ -1,10 +1,12 @@
-import { mkdirSync, mkdtempSync, writeFileSync } from 'node:fs';
+import { mkdirSync, mkdtempSync, realpathSync, writeFileSync } from 'node:fs';
 import http from 'node:http';
 import os from 'node:os';
 import path from 'node:path';
 import { withDefaults } from '../src/config.js';
 
-export const tmp = (prefix = 'bcp-') => mkdtempSync(path.join(os.tmpdir(), prefix));
+// Resolved, because macOS reaches its temp folder through a symlink (/var to
+// /private/var) and the code under test resolves symlinks.
+export const tmp = (prefix = 'bcp-') => realpathSync(mkdtempSync(path.join(os.tmpdir(), prefix)));
 
 // The public key in Browser Control's extension manifest, and the extension id
 // Chromium derives from it (the relay's "stable unpacked" origin).
