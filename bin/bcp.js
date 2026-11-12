@@ -1,5 +1,6 @@
 #!/usr/bin/env node
-import { readFileSync, realpathSync } from 'node:fs';
+import { mkdirSync, readFileSync, realpathSync, writeFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -20,9 +21,11 @@ Usage:
   bcp start <profile>                start a profile's relay
   bcp stop <profile> | --all         stop a profile's relay
   bcp check [profile...]             prove a session can open and close a tab in each profile
-  bcp mcp <profile> [--json]         print the MCP server entry for a profile
+  bcp mcp <profile> | --all [--json] print the MCP server entry for a profile, or for all of them
   bcp run <profile> -- <command> [args...]
                                      run a command against a profile's relay
+  bcp guide                          the full manual, for people and agents
+  bcp man [--install | --raw]        the manual as a man page; --install makes \`man bcp\` work
 
 A profile is named by its name in the config ("work"), its folder ("Profile 3")
 or its number ("3").
@@ -38,7 +41,7 @@ own bcp command comes first on the PATH.
 `;
 
 const VALUE_FLAGS = new Set(['config', 'browser', 'user-data-dir', 'copies-dir', 'first-port', 'url', 'source']);
-const BOOLEAN_FLAGS = new Set(['json', 'force', 'all', 'help', 'version']);
+const BOOLEAN_FLAGS = new Set(['json', 'force', 'all', 'help', 'version', 'install', 'raw']);
 const SHORT = { h: 'help', v: 'version' };
 
 export function parseArgs(argv) {
@@ -76,7 +79,29 @@ export function parseArgs(argv) {
   return { flags, positionals, rest };
 }
 
+const ROOT = path.join(path.dirname(fileURLToPath(import.meta.url)), '..');
+
+function guide() {
+  return readFileSync(path.join(ROOT, 'docs', 'MANUAL.md'), 'utf-8').trimEnd();
+}
+
+function man({ flags, env, home }) {
+  const page = path.join(ROOT, 'man', 'bcp.1');
+  if (flags.install) {
+    const dir = path.join(env.XDG_DATA_HOME || path.join(home, '.local', 'share'), 'man', 'man1');
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(path.join(dir, 'bcp.1'), readFileSync(page));
+    return `installed ${path.join(dir, 'bcp.1')}; open it with: man bcp`;
+  }
+  if (!flags.raw && process.stdout.isTTY && spawnSync('man', ['-l', page], { stdio: 'inherit' }).status === 0) {
+    return { text: null, code: 0 };
+  }
+  return readFileSync(page, 'utf-8').trimEnd();
+}
+
 const COMMANDS = {
+  guide,
+  man,
   init: commands.init,
   list: commands.list,
   sync: commands.sync,
@@ -92,7 +117,7 @@ export async function main(argv, { env = process.env, home = os.homedir() } = {}
   const { flags, positionals, rest } = parseArgs(argv);
   if (flags.help) return { text: HELP.trimEnd(), code: 0 };
   if (flags.version) {
-    const pkg = JSON.parse(readFileSync(path.join(path.dirname(fileURLToPath(import.meta.url)), '..', 'package.json'), 'utf-8'));
+    const pkg = JSON.parse(readFileSync(path.join(ROOT, 'package.json'), 'utf-8'));
     return { text: pkg.version, code: 0 };
   }
   const name = positionals.length ? positionals[0] : 'list';

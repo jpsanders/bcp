@@ -1,10 +1,21 @@
-# bcp
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/banner-dark.png">
+    <img alt="bcp: every Chromium profile, its own AI agent" src="docs/images/banner-light.png" width="100%">
+  </picture>
+</p>
 
-[![test](https://github.com/jpsanders/bcp/actions/workflows/test.yml/badge.svg)](https://github.com/jpsanders/bcp/actions/workflows/test.yml)
-[![version](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fjpsanders%2Fbcp%2Fmain%2Fpackage.json&query=%24.version&label=version&color=blue)](https://github.com/jpsanders/bcp/releases/latest)
-[![licence: MIT](https://img.shields.io/badge/licence-MIT-blue)](LICENSE)
-[![node: 20 or later](https://img.shields.io/badge/node-%3E%3D20-brightgreen)](package.json)
-[![dependencies: none](https://img.shields.io/badge/dependencies-none-brightgreen)](package.json)
+<p align="center">
+  <a href="https://github.com/jpsanders/bcp/actions/workflows/test.yml"><img alt="CI" src="https://img.shields.io/github/actions/workflow/status/jpsanders/bcp/test.yml?branch=main&label=CI&logo=github"></a>
+  <a href="https://github.com/jpsanders/bcp/releases/latest"><img alt="Release 1.1.0" src="https://img.shields.io/badge/release-1.1.0-a95719"></a>
+  <a href="package.json"><img alt="Node 22 or later" src="https://img.shields.io/badge/node-%3E%3D22-5FA04E?logo=nodedotjs&logoColor=white"></a>
+  <a href="package.json"><img alt="No dependencies" src="https://img.shields.io/badge/dependencies-none-2ea44f"></a>
+  <img alt="Linux and macOS" src="https://img.shields.io/badge/platform-Linux%20%7C%20macOS-1c1611">
+  <a href="#with-an-ai-agent"><img alt="MCP server per profile" src="https://img.shields.io/badge/MCP-per%20profile-a95719"></a>
+  <a href="#with-an-ai-agent"><img alt="Claude Code plugin" src="https://img.shields.io/badge/Claude%20Code-plugin-a95719"></a>
+  <a href="LICENSE"><img alt="MIT licence" src="https://img.shields.io/badge/licence-MIT-blue"></a>
+  <a href="https://github.com/jpsanders/bcp/stargazers"><img alt="Stars" src="https://img.shields.io/github/stars/jpsanders/bcp?style=flat&logo=github&color=a95719"></a>
+</p>
 
 Browser Control Profiles: drive several Chromium profiles at once with [Browser Control](https://github.com/anomalyco/browser-control).
 
@@ -24,15 +35,15 @@ profile "Profile 1"  ->  ~/browser-control-profiles/personal  ->  relay on 19991
 ## Requirements
 
 - Browser Control, installed with `npm install -g @opencode-ai/browser-control` (it needs Node 22.19 or later).
-- Node 20 or later for bcp. It has no dependencies.
+- Node 22 or later for bcp. It has no dependencies.
 - A Chromium family browser (Chromium, Chrome, Brave, Edge, Vivaldi). The copies are loaded unpacked; the Chrome Web Store build of Browser Control cannot be patched.
 - Linux or macOS. Tested on Ubuntu, including a live run with Browser Control 0.8.4 in which two Chromium browsers, each with its own copy and relay, were connected and checked at the same time. The same patch works on 0.7.0. The macOS browser paths follow each vendor's documented locations but are not tested yet.
 
 ## Install
 
 ```sh
-npm install -g github:jpsanders/bcp          # the latest
-npm install -g github:jpsanders/bcp#1.0.0    # a release
+npm install -g github:jpsanders/bcp#1.1.0    # this release
+npm install -g github:jpsanders/bcp          # the latest on main
 ```
 
 This installs the command `bcp`, and the same command under its long name, `browser-control-profiles`, for systems where SQL Server's own `bcp` comes first on the PATH.
@@ -52,7 +63,8 @@ bcp check       # opens and closes a tab in every profile
 bcp             # what each profile has loaded, and its relay
 ```
 
-Give each agent the MCP server for the profile it should use. `bcp mcp work` prints the entry; for Claude Code it is:
+Give each agent the MCP server for the profile it should use. `bcp mcp --all --json` prints every profile's server in
+one `mcpServers` block; `bcp mcp work` prints one, and for Claude Code it is:
 
 ```sh
 claude mcp add browser-control-work -e BROWSER_CONTROL_PORT=19990 -- browser-control-mcp
@@ -75,7 +87,9 @@ bcp run work -- browser-control status
 | `bcp start <profile>` | Starts that profile's relay. |
 | `bcp stop <profile>` | Stops that profile's relay; `--all` stops every profile's relay. |
 | `bcp check [profile...]` | Opens and closes a tab in each profile, starting its relay and opening a window when needed. Exits 1 if any profile fails. |
-| `bcp mcp <profile>` | Prints the MCP server entry for that profile. `--json` prints the JSON alone. |
+| `bcp mcp <profile>` | Prints the MCP server entry for that profile; `--all` prints every profile's in one block. `--json` prints the JSON alone. |
+| `bcp guide` | Prints the full manual, for people and agents. |
+| `bcp man` | Shows the manual as a man page; `--install` makes `man bcp` work. A global npm install adds it to your manpath anyway. |
 | `bcp run <profile> -- <command>` | Runs a command with `BROWSER_CONTROL_PORT` set to that profile's port. |
 
 A profile is named by its name in the config (`work`), its folder (`"Profile 3"`) or its number (`3`).
@@ -130,8 +144,35 @@ Run `bcp sync`, then reload each copy at chrome://extensions in its profile. `bc
 
 When a profile has no window open, Browser Control cannot open a tab there, so `bcp check` opens one on a small page that closes itself. Run from cron or a service on Linux, bcp takes the desktop session's display variables from `systemctl --user show-environment`, so the window still opens.
 
+## With an AI agent
+
+bcp is a Claude Code plugin: a skill that walks an agent through the setup and keeps it on the profile you named.
+
+```text
+/plugin install bcp --marketplace jpsanders/bcp
+```
+
+On Claude Code before 2.1.275: `/plugin marketplace add jpsanders/bcp`, then `/plugin install bcp@bcp`. Other agents
+read [`skills/bcp/SKILL.md`](skills/bcp/SKILL.md) as it is. The skill asks you to load each unpacked extension
+yourself, because that click belongs to you, then wires every profile's MCP server with `bcp mcp --all`.
+
+## The manual
+
+`bcp guide` prints the full manual, `bcp man` shows it as a man page, and `bcp man --install` makes `man bcp` work.
+A global npm install already adds it to your manpath. The source is [`docs/MANUAL.md`](docs/MANUAL.md); after editing
+it, `npm run man` rebuilds `man/bcp.1`, and CI fails while the two disagree.
+
+## Star history
+
+<a href="https://star-history.com/#jpsanders/bcp&Date">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="https://api.star-history.com/svg?repos=jpsanders/bcp&type=Date&theme=dark">
+    <img alt="Star history of jpsanders/bcp" src="https://api.star-history.com/svg?repos=jpsanders/bcp&type=Date">
+  </picture>
+</a>
+
 ## Licence
 
-MIT, see [LICENSE](LICENSE).
+MIT, see [LICENSE](LICENSE). Made by [James Phillip Sanders](https://jamesphillipsanders.com).
 
 Browser Control is made by Anomaly and is MIT licensed too. This repository does not include Browser Control: `bcp sync` copies the extension from the package you installed, on your own machine. This project is not affiliated with Anomaly or the Browser Control project.

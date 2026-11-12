@@ -92,6 +92,12 @@ test('sync, list and mcp against a fake package and browser', async () => {
   const json = JSON.parse((await main(['mcp', 'personal', '--json', '--config', config], { env, home: dir })).text);
   assert.deepEqual(json, { 'browser-control-personal': { command: '/opt/bin/browser-control-mcp', args: [], env: { BROWSER_CONTROL_PORT: String(p2) } } });
   await assert.rejects(main(['mcp', '--config', config], { env, home: dir }), /name a profile; profiles: work \(Default\), personal \(Profile 1\)/);
+
+  const all = JSON.parse((await main(['mcp', '--all', '--json', '--config', config], { env, home: dir })).text);
+  assert.deepEqual(Object.keys(all.mcpServers), ['browser-control-work', 'browser-control-personal']);
+  assert.equal(all.mcpServers['browser-control-personal'].env.BROWSER_CONTROL_PORT, String(p2));
+  const allText = (await main(['mcp', '--all', '--config', config], { env, home: dir })).text;
+  assert.match(allText, new RegExp(`claude mcp add browser-control-work -e BROWSER_CONTROL_PORT=${p1} -- /opt/bin/browser-control-mcp`));
 });
 
 test('run hands the profile\'s port to the command and passes its exit code back', async () => {
@@ -122,4 +128,19 @@ test('check reports each profile and fails when one is not ready', async () => {
   assert.match(r.text, /^personal \(Profile 1\): not ready, Profile 1 has not loaded ~\/copies\/personal yet$/m);
   const one = await check({ configPath: config, positionals: ['work'], env, ops });
   assert.equal(one.code, 0);
+});
+
+test('guide prints the manual, man prints or installs the man page, and the man page is up to date', async () => {
+  const dir = tmp();
+  const guide = await main(['guide'], { env, home: dir });
+  assert.match(guide.text, /^# bcp\n/);
+  assert.match(guide.text, /## FOR AGENTS/);
+  const raw = await main(['man', '--raw'], { env, home: dir });
+  assert.match(raw.text, /^\.TH BCP 1/);
+  const installed = await main(['man', '--install'], { env: { ...env, XDG_DATA_HOME: path.join(dir, 'data') }, home: dir });
+  assert.match(installed.text, /installed .*man1\/bcp\.1/);
+  assert.ok(existsSync(path.join(dir, 'data', 'man', 'man1', 'bcp.1')));
+  const { toRoff } = await import('../scripts/build-man.mjs');
+  const root = path.join(path.dirname(new URL(import.meta.url).pathname), '..');
+  assert.equal(readFileSync(path.join(root, 'man', 'bcp.1'), 'utf-8'), toRoff(readFileSync(path.join(root, 'docs', 'MANUAL.md'), 'utf-8')), 'man/bcp.1 is stale: npm run man');
 });

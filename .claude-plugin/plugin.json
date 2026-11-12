@@ -1,0 +1,14 @@
+{
+  "name": "bcp",
+  "description": "A skill for driving several Chromium profiles at once with Browser Control: one extension copy, relay port and MCP server per profile.",
+  "version": "1.1.0",
+  "author": {
+    "name": "James Phillip Sanders",
+    "email": "hello@jamesphillipsanders.com",
+    "url": "https://jamesphillipsanders.com"
+  },
+  "homepage": "https://github.com/jpsanders/bcp",
+  "repository": "https://github.com/jpsanders/bcp",
+  "license": "MIT",
+  "keywords": ["browser-control", "chromium", "profiles", "mcp", "browser-automation"]
+}

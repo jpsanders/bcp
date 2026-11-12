@@ -1,0 +1,154 @@
+.TH BCP 1 "" "bcp" "User Commands"
+.SH NAME
+bcp \- drive several Chromium profiles at once with Browser Control, one extension copy and relay per profile
+.SH SYNOPSIS
+.RS 4
+.nf
+bcp init [profile...] [\-\-browser ID] [\-\-user\-data\-dir DIR] [\-\-copies\-dir DIR] [\-\-first\-port PORT] [\-\-force]
+bcp [list] [\-\-json]
+bcp sync [\-\-source DIR]
+bcp open PROFILE [\-\-url URL]
+bcp start PROFILE
+bcp stop PROFILE | \-\-all
+bcp check [profile...]
+bcp mcp PROFILE | \-\-all [\-\-json]
+bcp run PROFILE \-\- COMMAND [ARGS...]
+bcp guide
+bcp man [\-\-install | \-\-raw]
+.fi
+.RE
+.SH DESCRIPTION
+.PP
+Browser Control lets an AI agent drive your real, logged in browser through a small extension and a local relay. One relay serves one profile: the extension always connects to port 19989, and the relay turns a second profile's extension away. bcp gives each Chromium profile its own copy of the extension, set to its own relay port, so one relay per profile runs side by side and each agent gets the profile it should use.
+.PP
+bcp has no dependencies and needs Node 22 or later, Browser Control (\fBnpm install \-g @opencode\-ai/browser\-control\fR) and a Chromium family browser: Chromium, Chrome, Brave, Edge or Vivaldi, on Linux or macOS. It is also installed as \fBbrowser\-control\-profiles\fR, for systems where SQL Server's own \fBbcp\fR comes first on the PATH.
+.PP
+A profile is named by its name in the config (\fBwork\fR), its folder (\fB"Profile 3"\fR) or its number (\fB3\fR).
+.SH COMMANDS
+.TP
+\fBinit\fR
+Write a config from the browser's profiles, all or the ones named, ports from 19990.
+.TP
+\fBlist\fR
+The default. Each profile: its copy, what it has loaded, its relay. \fB\-\-json\fR for scripts.
+.TP
+\fBsync\fR
+Write one copy of the extension per profile. \fB\-\-source DIR\fR copies another build.
+.TP
+\fBopen\fR
+Open a window in a profile, at chrome://extensions unless \fB\-\-url\fR says otherwise.
+.TP
+\fBstart\fR
+Start a profile's relay.
+.TP
+\fBstop\fR
+Stop a profile's relay; \fB\-\-all\fR stops every relay.
+.TP
+\fBcheck\fR
+Prove each profile works: open and close a tab, starting its relay and a window when needed.
+.TP
+\fBmcp\fR
+Print a profile's MCP server entry; \fB\-\-all\fR prints every profile's in one block; \fB\-\-json\fR prints JSON alone.
+.TP
+\fBrun\fR
+Run a command with \fBBROWSER_CONTROL_PORT\fR set to the profile's port.
+.TP
+\fBguide\fR
+Print this manual as Markdown, for people and agents.
+.TP
+\fBman\fR
+Show this manual as a man page; \fB\-\-install\fR puts it where \fBman bcp\fR finds it.
+.SH OPTIONS
+.TP
+\fB\-\-config FILE\fR
+The config file instead of the default.
+.TP
+\fB\-\-browser ID\fR
+With \fBinit\fR: \fBchromium\-snap\fR, \fBchromium\fR, \fBchrome\fR, \fBbrave\fR, \fBedge\fR or \fBvivaldi\fR on Linux; \fBchrome\fR, \fBchromium\fR, \fBbrave\fR or \fBedge\fR on macOS.
+.TP
+\fB\-\-user\-data\-dir DIR\fR
+With \fBinit\fR: the folder holding the browser's \fBLocal State\fR and one folder per profile.
+.TP
+\fB\-\-copies\-dir DIR\fR
+With \fBinit\fR: where the extension copies go. Default \fB~/browser\-control\-profiles\fR.
+.TP
+\fB\-\-first\-port PORT\fR
+With \fBinit\fR: the first relay port. Default 19990.
+.TP
+\fB\-\-force\fR
+With \fBinit\fR: replace an existing config.
+.TP
+\fB\-\-json\fR
+With \fBlist\fR and \fBmcp\fR: print JSON.
+.TP
+\fB\-\-all\fR
+With \fBstop\fR and \fBmcp\fR: every profile.
+.TP
+\fB\-h\fR, \fB\-\-help\fR
+The short help.
+.TP
+\fB\-v\fR, \fB\-\-version\fR
+The version.
+.SH CONFIG
+.PP
+\fB~/.config/browser\-control\-profiles/config.json\fR, or under \fBXDG_CONFIG_HOME\fR, or the file in \fBBROWSER_CONTROL_PROFILES_CONFIG\fR or \fB\-\-config\fR.
+.TP
+\fBbrowser\fR
+The browser's executable, used by \fBopen\fR and \fBcheck\fR.
+.TP
+\fBuserDataDir\fR
+The folder with \fBLocal State\fR and one folder per profile.
+.TP
+\fBcli\fR, \fBmcp\fR
+The Browser Control commands, \fBbrowser\-control\fR and \fBbrowser\-control\-mcp\fR by default.
+.TP
+\fBextensionSource\fR
+The extension build to copy; empty means find it through \fBbrowser\-control\fR or \fBnpm root \-g\fR.
+.TP
+\fBcopiesDir\fR
+Where the copies go, one folder per profile, named after the profile's \fBname\fR.
+.TP
+\fBprofiles\fR
+Keyed by profile folder: \fBname\fR (lowercase letters, digits and dashes) and \fBport\fR.
+.TP
+\fBconnectTimeoutSec\fR
+How long \fBcheck\fR waits for an extension to connect after opening a window. Default 60.
+.TP
+\fBopenGraceSec\fR
+How long \fBcheck\fR lets an open profile's extension reconnect first. Default 35.
+.TP
+\fBwakeCloseSec\fR
+How long the page \fBcheck\fR opens stays before closing itself. Default 120.
+.PP
+Port 19989 stays Browser Control's own default, so a plain \fBbrowser\-control\fR command keeps working.
+.SH SETTING UP
+.RS 4
+.nf
+bcp init                 # one entry per profile, ports from 19990
+bcp sync                 # one copy of the extension per profile
+bcp open work            # chrome://extensions in that profile
+.fi
+.RE
+.PP
+In each profile, switch on Developer mode, choose Load unpacked and pick that profile's folder under \fB~/browser\-control\-profiles\fR. Then \fBbcp check\fR proves every profile end to end, and \fBbcp mcp \-\-all\fR prints the MCP entries to give your agents.
+.SH SNAP BROWSERS ON UBUNTU
+.PP
+Snap Chromium cannot read top level folders in your home that start with a dot or with "s", so the extension inside an npm folder such as \fB~/.nvm\fR cannot load there. The default copies folder is readable; \fBinit\fR refuses one the snap cannot read, and \fBlist\fR and \fBsync\fR warn about one.
+.SH AFTER A BROWSER CONTROL UPGRADE
+.PP
+Run \fBbcp sync\fR, then reload each copy at chrome://extensions in its profile. \fBbcp list\fR points out a copy older than the installed package. If an upgrade changes the line that sets the port, \fBsync\fR stops before writing and says so.
+.SH WINDOWS AND CRON
+.PP
+With no window open in a profile, Browser Control cannot open a tab there, so \fBcheck\fR opens one on a small page that closes itself. Run from cron or a service on Linux, bcp takes the desktop's display variables from \fBsystemctl \-\-user show\-environment\fR, so the window still opens.
+.SH EXIT STATUS
+.PP
+0 on success. 1 when a check fails or the arguments are wrong, with the reason on standard error.
+.SH FOR AGENTS
+.PP
+Use \fBbcp list \-\-json\fR to see the profiles, their ports and whether each relay runs. Give each agent its own profile's MCP server from \fBbcp mcp PROFILE \-\-json\fR, or run a Browser Control command against a profile with \fBbcp run PROFILE \-\- browser\-control ...\fR. Loading the unpacked extension in each profile is a step only the person can do in the browser; ask them to, then run \fBbcp check\fR.
+.SH SEE ALSO
+.PP
+https://github.com/jpsanders/bcp, https://github.com/anomalyco/browser-control
+.SH AUTHOR
+.PP
+James Phillip Sanders, https://jamesphillipsanders.com

@@ -209,6 +209,16 @@ export async function check({ configPath, positionals, env, ops = null }) {
 
 export async function mcp({ configPath, flags, positionals }) {
   const cfg = loadConfig(configPath);
+  if (flags.all) {
+    const servers = {};
+    for (const one of profileList(cfg)) {
+      servers[`browser-control-${one.name}`] = { command: expandHome(cfg.mcp), args: [], env: { BROWSER_CONTROL_PORT: String(one.port) } };
+    }
+    const block = JSON.stringify({ mcpServers: servers }, null, 2);
+    if (flags.json) return block;
+    const adds = Object.entries(servers).map(([name, e]) => `  claude mcp add ${name} -e BROWSER_CONTROL_PORT=${e.env.BROWSER_CONTROL_PORT} -- ${e.command}`);
+    return ['Claude Code:', ...adds, '', 'Any client that takes JSON:', `  ${block.split('\n').join('\n  ')}`].join('\n');
+  }
   const p = needProfile(cfg, positionals[0]);
   const name = `browser-control-${p.name}`;
   const command = expandHome(cfg.mcp);

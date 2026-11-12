@@ -1,0 +1,19 @@
+{
+  "$schema": "https://anthropic.com/claude-code/marketplace.schema.json",
+  "name": "bcp",
+  "description": "Drive several Chromium profiles at once with Browser Control.",
+  "owner": {
+    "name": "James Phillip Sanders",
+    "email": "hello@jamesphillipsanders.com"
+  },
+  "plugins": [
+    {
+      "name": "bcp",
+      "description": "A skill that sets up one Browser Control relay and MCP server per Chromium profile, and uses them.",
+      "version": "1.1.0",
+      "source": "./",
+      "category": "productivity",
+      "homepage": "https://github.com/jpsanders/bcp"
+    }
+  ]
+}

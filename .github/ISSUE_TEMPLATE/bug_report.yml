@@ -1,0 +1,25 @@
+---
+name: Bug report
+description: A profile that would not sync, connect or check
+labels: ["bug"]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened
+      description: The command you ran, what it printed, and what you expected.
+    validations:
+      required: true
+  - type: textarea
+    id: list
+    attributes:
+      label: bcp list --json
+      description: Its output. Remove anything private, such as profile names you would rather not share.
+      render: json
+  - type: input
+    id: versions
+    attributes:
+      label: Versions
+      placeholder: bcp 1.1.0, Browser Control 0.8.4, Node 24, Chromium snap on Ubuntu 26.04
+    validations:
+      required: true

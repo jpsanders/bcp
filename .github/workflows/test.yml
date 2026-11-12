@@ -1,8 +1,12 @@
+---
 name: test
 
 on:
   push:
+    branches:
+      - 'main'
   pull_request:
+  workflow_dispatch:
 
 jobs:
   test:
@@ -11,10 +15,29 @@ jobs:
       fail-fast: false
       matrix:
         os: [ubuntu-latest, macos-latest]
-        node: [20, 22]
+        node: [22, 24, 26]
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
         with:
           node-version: ${{ matrix.node }}
       - run: npm test
+      - run: npm run man:check
+
+  # Proves the packed package installs on its own and runs, the way a user gets it.
+  package:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+      - name: Pack, install globally into a clean prefix, and run it
+        run: |
+          npm pack
+          npm install -g --prefix /tmp/clean ./browser-control-profiles-*.tgz
+          /tmp/clean/bin/bcp --version
+          /tmp/clean/bin/bcp guide | head -3
+          /tmp/clean/bin/bcp man --raw | head -1
+          test -f /tmp/clean/share/man/man1/bcp.1

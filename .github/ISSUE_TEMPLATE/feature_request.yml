@@ -1,0 +1,16 @@
+---
+name: Feature request
+description: A browser, a platform or a command bcp should support
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem
+      description: What you cannot do with several profiles today.
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: What would help

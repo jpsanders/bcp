@@ -1,0 +1,13 @@
+# bcp
+
+> bcp (Browser Control Profiles) drives several Chromium profiles at once with Browser Control: one extension copy,
+> relay port and MCP server per profile, so each AI agent gets its own logged in profile. No dependencies, Node 22+.
+
+Install: `npm install -g github:jpsanders/bcp#1.1.0`. Set up: `bcp init`, `bcp sync`, load each copy unpacked, then
+`bcp check`. Give agents their servers with `bcp mcp --all --json`.
+
+## Docs
+
+- [Manual](https://github.com/jpsanders/bcp/blob/main/docs/MANUAL.md): every command, option and config field
+- [Skill](https://github.com/jpsanders/bcp/blob/main/skills/bcp/SKILL.md): the steps for an agent
+- [README](https://github.com/jpsanders/bcp/blob/main/README.md)

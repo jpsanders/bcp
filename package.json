@@ -1,25 +1,36 @@
 {
   "name": "browser-control-profiles",
-  "version": "1.0.0",
-  "description": "bcp: drive several Chromium profiles at once with Browser Control, one extension copy and relay port per profile.",
+  "version": "1.1.0",
+  "description": "bcp: drive several Chromium profiles at once with Browser Control, one extension copy, relay port and MCP server per profile.",
   "license": "MIT",
-  "author": "James Phillip Sanders",
+  "author": {
+    "name": "James Phillip Sanders",
+    "email": "hello@jamesphillipsanders.com",
+    "url": "https://jamesphillipsanders.com"
+  },
   "type": "module",
   "bin": {
     "bcp": "bin/bcp.js",
     "browser-control-profiles": "bin/bcp.js"
   },
+  "man": [
+    "./man/bcp.1"
+  ],
   "files": [
     "bin",
     "src",
+    "docs/MANUAL.md",
+    "man",
     "README.md",
     "LICENSE"
   ],
   "engines": {
-    "node": ">=20"
+    "node": ">=22"
   },
   "scripts": {
-    "test": "node --test test/*.test.js"
+    "test": "node --test test/*.test.js",
+    "man": "node scripts/build-man.mjs",
+    "man:check": "node scripts/build-man.mjs --check"
   },
   "repository": {
     "type": "git",
@@ -30,12 +41,17 @@
     "url": "https://github.com/jpsanders/bcp/issues"
   },
   "keywords": [
-    "browser-control",
-    "chromium",
-    "chrome",
-    "profiles",
-    "mcp",
     "agents",
-    "playwright"
+    "ai-agents",
+    "browser-automation",
+    "browser-control",
+    "chrome",
+    "chromium",
+    "claude-code",
+    "mcp",
+    "mcp-server",
+    "multi-profile",
+    "playwright",
+    "profiles"
   ]
 }
